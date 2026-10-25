@@ -179,36 +179,57 @@ with tab1:
 
 # --- PESTAÑA 2: GOLEADORES ---
 with tab2:
-    st.header("⚽ Goles y Goleadores Históricos")
+    st.header("⚽ Ranking Histórico de Goleadores")
     
-    # Gráfico de barras
-    fig_goles = px.bar(
-        resumen, x="Año", y="Goles_Arg", text="Goles_Arg",
-        title="Goles de Argentina por Edición del Mundial",
-        color="Goles_Arg",
+    # Diccionario con el Top 10 de goleadores históricos de Argentina en Mundiales
+    TOP_GOLEADORES = {
+        "Lionel Messi": 21,
+        "Gabriel Batistuta": 10,
+        "Diego Maradona": 8,
+        "Guillermo Stábile": 8,
+        "Mario Kempes": 6,
+        "Gonzalo Higuaín": 5,
+        "Julian Alvarez": 5,
+        "Hernán Crespo": 4,
+        "Jorge Valdano": 4,
+        "Claudio Caniggia": 4,
+    }
+    
+    # Convertimos el diccionario a un DataFrame para graficar
+    df_goleadores = pd.DataFrame(list(TOP_GOLEADORES.items()), columns=["Jugador", "Goles"])
+    df_goleadores = df_goleadores.sort_values(by="Goles", ascending=True) # Orden ascendente para el gráfico horizontal
+
+    # Gráfico de barras horizontales (Top Goleadores)
+    fig_top = px.bar(
+        df_goleadores, 
+        x="Goles", 
+        y="Jugador",
+        orientation='h', # Horizontal para que se lean bien los nombres
+        text="Goles",
+        title="Top 10: Máximos Goleadores Históricos de Argentina",
+        color="Goles",
         color_continuous_scale=["#1e3a5f", "#75AADB", "#ffffff"]
     )
-    fig_goles.update_traces(textposition='outside', textfont_size=14)
-    fig_goles.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font_color="#ffffff", coloraxis_showscale=False,
-        title_font_size=20
+    
+    fig_top.update_traces(textposition='outside', textfont_size=14, textfont_color="#ffffff")
+    fig_top.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)", 
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="#ffffff", 
+        coloraxis_showscale=False,
+        title_font_size=20,
+        height=500
     )
-    st.plotly_chart(fig_goles, width="stretch")
+    st.plotly_chart(fig_top, width="stretch")
     
     st.markdown("---")
-    st.subheader("🏅 Goleadores")
+    st.subheader("🏅Top 3 Goleadores")
     
-    # Mostrar goleadores en dos columnas
-    goleadores_validos = resumen[resumen["Goleador_Arg"] != "Por definirse"]
-    col_izq, col_der = st.columns(2)
-    
-    mitad = len(goleadores_validos) // 2
-    for i, (_, row) in enumerate(goleadores_validos.iterrows()):
-        año = int(row["Año"])
-        goleador = row["Goleador_Arg"]
-        target = col_izq if i < mitad else col_der
-        target.markdown(f"**{año}** — 🥇 {goleador}")
+    # Mostramos el Top 3 destacado
+    col1, col2, col3 = st.columns(3)
+    col1.metric("🥇 Máximo Goleador", "Lionel Messi", "21 Goles")
+    col2.metric("🥈 Segundo", "Gabriel Batistuta", "10 Goles")
+    col3.metric("🥉 Tercero", "Diego Maradona", "8 Goles")
 
 # --- PESTAÑA 3: PARTIDOS ---
 with tab3:
