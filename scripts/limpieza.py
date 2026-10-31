@@ -20,7 +20,7 @@ DATOS_OFICIALES = {
     1990: {"partidos": 7,  "goles": 5,  "gc": 4,  "instancia": "🥈 Subcampeón",     "goleador": "Claudio Caniggia (2)"},
     1994: {"partidos": 4,  "goles": 8,  "gc": 6,  "instancia": "Fase Eliminatoria",  "goleador": "Gabriel Batistuta (4)"},
     1998: {"partidos": 5,  "goles": 10, "gc": 4,  "instancia": "Fase Eliminatoria",  "goleador": "Gabriel Batistuta (5)"},
-    2002: {"partidos": 3,  "goles": 2,  "gc": 2,  "instancia": "Fase Eliminatoria",  "goleador": "Gabriel Batistuta (1)"},
+    2002: {"partidos": 3,  "goles": 2,  "gc": 2,  "instancia": "Fase Eliminatoria",  "goleador": "Gabriel Batistuta y Hernán Crespo (1 c/u)"},
     2006: {"partidos": 5,  "goles": 11, "gc": 3,  "instancia": "Fase Eliminatoria",  "goleador": "Hernán Crespo y Maxi Rodríguez (3 c/u)"},
     2010: {"partidos": 5,  "goles": 10, "gc": 6,  "instancia": "Fase Eliminatoria",  "goleador": "Gonzalo Higuaín (4)"},
     2014: {"partidos": 7,  "goles": 8,  "gc": 4,  "instancia": "🥈 Subcampeón",     "goleador": "Lionel Messi (4)"},
