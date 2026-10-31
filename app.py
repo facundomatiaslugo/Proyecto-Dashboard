@@ -133,21 +133,66 @@ st.markdown('<p class="subtitle">Un recorrido por la historia de la Selección A
 tab1, tab2, tab3 = st.tabs(["🏆 Resumen", "⚽ Goles y Goleadores", "📊 Partido a Partido"])
 
 # --- PESTAÑA 1: RESUMEN ---
-with tab1:
+with tab1:  # <--- Todo lo que esté indentado acá adentro, va SOLO en la pestaña 1.
     st.header("📊 El Camino de la Albiceleste")
     
-    # Tomar los totales desde el resumen oficial para incluir el torneo 2026 completo
-    total_partidos = int(resumen["Partidos_Jugados"].sum())
-    total_goles = int(resumen["Goles_Arg"].sum())
+    # --- CÁLCULO DE KPIs ADICIONALES ---
+    total_partidos = len(partidos)
+    total_victorias = (partidos["Resultado"] == "Victoria").sum()
+    total_empates = (partidos["Resultado"] == "Empate").sum()
+    total_derrotas = (partidos["Resultado"] == "Derrota").sum()
+    total_goles_favor = partidos["Goles_Arg"].sum()
+    total_goles_contra = partidos["Goles_Rival"].sum()
+    diferencia_gol = total_goles_favor - total_goles_contra
+
     titulos = resumen[resumen["Instancia"] == "🏆 Campeón"].shape[0]
     subcampeonatos = resumen[resumen["Instancia"] == "🥈 Subcampeón"].shape[0]
+
+    # --- FILA 1: PALMARÉS ---
     
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("🏆 Copas del Mundo", titulos)
     col2.metric("🥈 Subcampeonatos", subcampeonatos)
-    col3.metric("⚽ Partidos Jugados", total_partidos) # Ahora dirá 96
-    col4.metric("🎯 Goles Convertidos", total_goles)    # Ahora dirá 171
-    
+    col3.metric("⚽ Partidos Jugados", total_partidos)
+    col4.metric("📅 Mundiales Disputados", 19)
+
+    st.markdown("---")
+
+    # --- FILA 2: RENDIMIENTO EN PARTIDOS ---
+    st.subheader("📊 Rendimiento en Partidos")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("✅ Victorias", total_victorias, f"{(total_victorias/total_partidos)*100:.1f}%",delta_color="off")
+    col2.metric("➖ Empates", total_empates, f"{(total_empates/total_partidos)*100:.1f}%",delta_color="off")
+    col3.metric("❌ Derrotas", total_derrotas, f"{(total_derrotas/total_partidos)*100:.1f}%",delta_color="off")
+    col4.metric("📈 Efectividad", f"{(total_victorias/total_partidos)*100:.1f}%")
+
+    st.markdown("---")
+
+    # --- FILA 3: BALANCE DE GOLES ---
+    st.subheader("🎯 Balance de Goles")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("⚽ Goles a Favor", total_goles_favor)
+    col2.metric("🥅 Goles en Contra", total_goles_contra)
+    col3.metric("➕ Diferencia de Gol", f"+{diferencia_gol}" if diferencia_gol > 0 else diferencia_gol)
+    col4.metric("📉 Promedio GC/Partido", f"{total_goles_contra/total_partidos:.2f}")
+
+    # Barra visual de resultados
+    fig_bar = go.Figure()
+    fig_bar.add_trace(go.Bar(
+        x=["Victorias", "Empates", "Derrotas"],
+        y=[total_victorias, total_empates, total_derrotas],
+        text=[total_victorias, total_empates, total_derrotas],
+        textposition='outside',
+        marker_color=['#75AADB', '#A5C8E8', '#ff4b4b']
+    ))
+    fig_bar.update_layout(
+        title="Distribución Histórica de Resultados (96 Partidos)",
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        font_color="#ffffff", title_font_size=18,
+        yaxis_title="Cantidad de Partidos"
+    )
+    st.plotly_chart(fig_bar, width="stretch")
+
     st.markdown("---")
     st.subheader("🏅 Participaciones por Mundial")
     
@@ -159,7 +204,7 @@ with tab1:
         width="stretch", hide_index=True
     )
     
-    # Gráfico de evolución de goles
+    # --- GRÁFICO DE EVOLUCIÓN DE GOLES ---
     st.subheader("📈 Evolución de Goles por Mundial")
     fig_line = go.Figure()
     fig_line.add_trace(go.Scatter(
@@ -180,8 +225,9 @@ with tab1:
 # --- PESTAÑA 2: GOLEADORES ---
 with tab2:
     st.header("⚽ Ranking Histórico de Goleadores")
+    st.caption("Se muestran todos los jugadores argentinos con 4 goles o más en la historia de los Mundiales (1930-2026).")
     
-    # Diccionario con el Top 10 de goleadores históricos de Argentina en Mundiales
+    # Máximos goleadores históricos de Argentina en Mundiales
     TOP_GOLEADORES = {
         "Lionel Messi": 21,
         "Gabriel Batistuta": 10,
@@ -189,10 +235,13 @@ with tab2:
         "Guillermo Stábile": 8,
         "Mario Kempes": 6,
         "Gonzalo Higuaín": 5,
-        "Julian Alvarez": 5,
+        "Julián Álvarez": 5,
         "Hernán Crespo": 4,
-        "Jorge Valdano": 4,
         "Claudio Caniggia": 4,
+        "Jorge Valdano": 4,
+        "Daniel Bertoni": 4,
+        "Leopoldo Luque": 4,
+        "René Houseman": 4,
     }
     
     # Convertimos el diccionario a un DataFrame para graficar
@@ -206,7 +255,7 @@ with tab2:
         y="Jugador",
         orientation='h', # Horizontal para que se lean bien los nombres
         text="Goles",
-        title="Top 10: Máximos Goleadores Históricos de Argentina",
+        title="Máximos goleadores argentinos en los Mundiales",
         color="Goles",
         color_continuous_scale=["#1e3a5f", "#75AADB", "#ffffff"]
     )
@@ -218,18 +267,19 @@ with tab2:
         font_color="#ffffff", 
         coloraxis_showscale=False,
         title_font_size=20,
-        height=500
+        height=650
     )
     st.plotly_chart(fig_top, width="stretch")
     
     st.markdown("---")
-    st.subheader("🏅Top 3 Goleadores")
-    
-    # Mostramos el Top 3 destacado
-    col1, col2, col3 = st.columns(3)
-    col1.metric("🥇 Máximo Goleador", "Lionel Messi", "21 Goles")
-    col2.metric("🥈 Segundo", "Gabriel Batistuta", "10 Goles")
-    col3.metric("🥉 Tercero", "Diego Maradona", "8 Goles")
+    st.subheader("🥇 Lionel Messi: así llegó a los 21 goles")
+
+    GOLES_MESSI = {2006: 1, 2014: 4, 2018: 1, 2022: 7, 2026: 8}
+    assert sum(GOLES_MESSI.values()) == TOP_GOLEADORES["Lionel Messi"]
+
+    cols_messi = st.columns(len(GOLES_MESSI))
+    for col, (anio, goles) in zip(cols_messi, GOLES_MESSI.items()):
+        col.metric(f"Mundial {anio}", f"{goles} {'gol' if goles == 1 else 'goles'}")
 
 # --- PESTAÑA 3: PARTIDOS ---
 with tab3:
@@ -278,11 +328,13 @@ with tab3:
         c[2].write(int(fila["GF"]))
         c[3].write(int(fila["GC"]))
 
+        # Verificamos si este partido tiene imagen asignada en el diccionario
         ruta = IMAGENES_PARTIDOS.get((int(año_seleccionado), fila["Rival"]))
         if ruta:
             if c[4].button(f"📸 {fila['Resultado']}", key=f"img_{año_seleccionado}_{fila['Rival']}"):
                 mostrar_imagen(ruta, f"Argentina {fila['GF']} - {fila['GC']} {fila['Rival']}")
         else:
+            # Si no tiene imagen, se muestra el texto normal
             c[4].write(fila["Resultado"])
 
         c[5].write(fila["Fase"])
